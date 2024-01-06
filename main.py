@@ -1,4 +1,11 @@
+import time
+
+
 ROM_CODE_FILE_PATH = 'test/hello.ch8'
+
+CLOCK_SPEED_HZ = 10
+
+LOOP_SPEED_HZ = 1000
 
 PROGRAM_CODE = [
     '6007', # Sets V0 to 7
@@ -9,10 +16,30 @@ PROGRAM_CODE = [
     '5001', # Not an instruction
 ]
 
+executed_cycles = 0
+
+def run(clock_speed_hz: int):
+    t_start = get_current_time_ms()
+
+    while True:
+        t_now = get_current_time_ms()
+        t_running = t_now - t_start
+        expected_executed_cycles = round(t_running * clock_speed_hz / 1000)
+        while expected_executed_cycles > executed_cycles:
+            execute_cycle()
+        time.sleep(1 / LOOP_SPEED_HZ)
+
+def execute_cycle():
+    global executed_cycles
+    print(f'Cycle: {executed_cycles + 1}')
+    executed_cycles += 1
+
+def get_current_time_ms() -> int:
+    return time.time_ns() / 1_000_000
+
 def main():
     print("Starting CHIP-8 Emulator")
-    code = get_code_human_readable(ROM_CODE_FILE_PATH)
-    interpret_code(code)
+    run(CLOCK_SPEED_HZ)
 
 def get_code_human_readable(file_path: str) -> [str]:
     code: [str] = []
