@@ -1,14 +1,4 @@
-import math
-import os
-import time
-
-ROM_CODE_FILE_PATH = 'test/hello.ch8'
-
-CLOCK_SPEED_HZ = 10
-
-LOOP_SPEED_HZ = 1000
-
-UPDATE_UI_SPEED_HZ = 7
+import emulator as emul
 
 PROGRAM_CODE = [
     '6007', # Sets V0 to 7
@@ -19,53 +9,10 @@ PROGRAM_CODE = [
     '5001', # Not an instruction
 ]
 
-executed_cycles = 0
-executed_ui_updates = 0
-t_start = 0
-
-def run(clock_speed_hz: int, update_ui_speed_hz: int):
-    global t_start
-    t_start = get_current_time_ms()
-
-    while True:
-        t_running = get_running_time_ms()
-        expected_executed_cycles = math.floor(t_running * clock_speed_hz / 1000)
-        while expected_executed_cycles > executed_cycles:
-            execute_cycle()
-        expected_executed_ui_updates = math.floor(t_running * update_ui_speed_hz / 1000) + 1
-        while expected_executed_ui_updates > executed_ui_updates:
-            update_ui()
-        time.sleep(1 / LOOP_SPEED_HZ)
-
-def execute_cycle():
-    global executed_cycles
-    executed_cycles += 1
-
-def update_ui():
-    global executed_ui_updates
-    t_running = get_running_time_ms()
-    clear_console()
-    render_ui(t_running)
-    executed_ui_updates += 1
-
-
-def render_ui(running_time):
-    print(f'📺 CHIP-8 Emulator 📺\n----------------------\n')
-    print(f'Running: {running_time / 1000:.3f}')
-    print(f'Cycle: {executed_cycles + 1}')
-
-def clear_console():
-    os.system('clear')
-
-def get_running_time_ms() -> int:
-    return get_current_time_ms() - t_start
-
-def get_current_time_ms() -> int:
-    return time.time_ns() / 1_000_000
-
 def main():
     print("Starting CHIP-8 Emulator")
-    run(CLOCK_SPEED_HZ, UPDATE_UI_SPEED_HZ)
+    emulator = emul.Emulator()
+    emulator.run()
 
 def get_code_human_readable(file_path: str) -> [str]:
     code: [str] = []

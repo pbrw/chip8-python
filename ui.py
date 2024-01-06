@@ -5,10 +5,12 @@ class UiRenderer:
         self.executed_ui_updates = 0
         self.emulator = emulator
 
-    def update_ui(self, executed_cycles):
-        t_running = self.emulator.get_running_time_ms()
+    def update_ui(self):
         self.clear_console()
-        self.render_ui(t_running, executed_cycles)
+        self.render_ui(
+            self.emulator.get_running_time_ms(),
+            self.emulator.executed_cycles
+        )
         self.executed_ui_updates += 1
 
     def render_ui(self, running_time, executed_cycles):
