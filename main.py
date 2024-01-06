@@ -1,3 +1,5 @@
+ROM_CODE_FILE_PATH = 'test/hello.ch8'
+
 PROGRAM_CODE = [
     '6007', # Sets V0 to 7
     'A859', # Sets I to 2137
@@ -9,7 +11,23 @@ PROGRAM_CODE = [
 
 def main():
     print("Starting CHIP-8 Emulator")
-    interpret_code(PROGRAM_CODE)
+    code = get_code_human_readable(ROM_CODE_FILE_PATH)
+    interpret_code(code)
+
+def get_code_human_readable(file_path: str) -> [str]:
+    code: [str] = []
+    with open(file_path, "rb") as file:
+        content: bytes = file.read()
+        for index in range(0, len(content), 2):
+            first_byte = get_human_readable_byte(content[index])
+            second_byte = get_human_readable_byte(content[index + 1])
+            code.append(first_byte + second_byte)
+    return code
+
+def get_human_readable_byte(byte: any) -> str:
+    if int(byte) < 16:
+        return f'0{hex(byte)[-1]}'
+    return (hex(byte)[-2:]).upper()
 
 def interpret_code(code: [str]):
     for index, instr in enumerate(code):
@@ -17,6 +35,7 @@ def interpret_code(code: [str]):
         interpret_instruction(instr)
 
 def interpret_instruction(instr: str):
+    print(f'{instr} - ', end='')
     if instr[0] == '6':
         register = int(instr[1], 16)
         value = int(instr[2:], 16)
