@@ -1,6 +1,6 @@
 ROM_CODE_FILE_PATH = 'test/hello.ch8'
 
-CLOCK_SPEED_HZ = 1
+CLOCK_SPEED_HZ = 10
 
 LOOP_SPEED_HZ = 1000
 

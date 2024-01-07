@@ -1,4 +1,6 @@
 import os
+import math
+
 import config
 import utils
 
@@ -73,6 +75,19 @@ class UiRenderer:
     def render_white_pixel(self):
         print('\u2588', end='')
         print('\u2588', end='')
+
+    def xor_screen(self, x: int, y: int, bytes: [int]):
+        for index, byte in enumerate(bytes):
+            self.xor_byte(x, y + index, byte)
+
+    def xor_byte(self, x: int, y: int, byte: int):
+        xi = math.floor(x / 8)
+        yi = y
+        self.screen[xi][yi] ^= byte
+        if self.screen[xi][yi] & byte:
+            self.emulator.set_vf_register(1)
+        else:
+            self.emulator.set_vf_register(0)
 
     def clear_screen(self):
         self.screen =  self.get_empty_screen()

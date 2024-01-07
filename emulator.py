@@ -25,8 +25,8 @@ class Emulator:
     def execute_cycle(self):
         self.executed_cycles += 1
         instr = self.fetch_instruction_human_readable()
+        self.move_program_counter(2)
         self.execute_instruction(instr)
-        self.move_program_counter()
 
     def execute_instruction(self, instr: int):
         if instr[0] == '6':
@@ -44,16 +44,23 @@ class Emulator:
         elif instr[0] == 'D':
             x_register = int(instr[1], 16)
             y_register = int(instr[2], 16)
-            n = int(instr[3 ], 16)
+            n = int(instr[3], 16)
+            self.draw_bytes(self.v_registers[x_register], self.v_registers[y_register], n)
             self.renderer.put_message(f'Draw {n} bytes at (V{x_register}, V{y_register})')
         elif instr[0] == '1':
             value = int(instr[1:], 16)
+            self.program_counter = value
             self.renderer.put_message(f'Jump to address {value}')
         else:
             self.renderer.put_message(f'Instruction {instr} not known')
 
-    def move_program_counter(self):
-        self.program_counter += 2
+
+    def draw_bytes(self, x: int, y: int, n: int):
+        begin = self.index_register
+        self.renderer.xor_screen(x, y, self.memory[begin: begin + n])
+
+    def move_program_counter(self, n):
+        self.program_counter += n
 
     def fetch_instruction_human_readable(self) -> str:
         first_byte = self.memory[self.program_counter]
@@ -65,6 +72,9 @@ class Emulator:
 
     def get_v_register(self, register: int) -> int:
         return self.v_registers[register]
+
+    def set_vf_register(self, value: int):
+        self.v_registers[0xF] = value
 
     def set_index_register(self, value: int):
         self.index_register = value
