@@ -39,6 +39,7 @@ class Emulator:
             self.set_index_register(value)
             self.renderer.put_message(f'Set register I to {value}')
         elif instr == '00E0':
+            self.renderer.clear_screen()
             self.renderer.put_message('Clear the screen')
         elif instr[0] == 'D':
             x_register = int(instr[1], 16)

@@ -3,9 +3,9 @@ import emulator as emul
 PROGRAM_CODE = [
     '600A', # Sets V0 to 7
     'A859', # Sets I to 2137
-    '00E0', # Clear screen
     'D3B5', # Draw 5 bytes at (V3, V11)
     '1800', # Jump to adress 2048
+    '00E0', # Clear screen
     '5001', # Not an instruction
 ]
 
