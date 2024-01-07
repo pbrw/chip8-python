@@ -1,4 +1,6 @@
 import os
+import config
+import utils
 
 class UiRenderer:
     def __init__(self, emulator):
@@ -17,6 +19,16 @@ class UiRenderer:
         print('📺 CHIP-8 Emulator 📺\n----------------------\n')
         print(f'Running: {running_time / 1000:.3f}')
         print(f'Cycle: {executed_cycles + 1}')
+        print('')
+        self.render_memory()
+
+    def render_memory(self):
+        memory = self.emulator.get_memory_window(config.UI_MEMORY_WINDOW_SIZE)
+        current_location = self.emulator.program_counter
+        print('Memory:')
+        for index, byte in enumerate(memory):
+            print(f'\t{utils.leading_zeros(current_location + index, 4)}: {utils.byte_to_human(byte)}')
+
 
     def clear_console(self):
         os.system('clear')
