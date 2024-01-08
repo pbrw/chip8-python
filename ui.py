@@ -59,7 +59,7 @@ class UiRenderer:
         print(f'Index register: {self.emulator.index_register}')
 
     def render_screen(self):
-        for index in range(config.SCREEN_HEIGHT):
+        for index in range(config.SCREEN_ARRAY_HEIGHT):
             print(' ', end='')
             for col in self.screen:
                 for i in range(8):
@@ -78,13 +78,25 @@ class UiRenderer:
 
     def xor_screen(self, x: int, y: int, bytes: [int]):
         for index, byte in enumerate(bytes):
-            self.xor_byte(x, y + index, byte)
+            self.xor_byte(x, (y + index) % config.SCREEN_ARRAY_HEIGHT, byte)
 
     def xor_byte(self, x: int, y: int, byte: int):
-        xi = math.floor(x / 8)
-        yi = y
-        self.screen[xi][yi] ^= byte
-        if self.screen[xi][yi] & byte:
+        erased = 0
+        x_i = math.floor(x / 8)
+        x_offset = x % 8
+        y_i = y
+
+        xor_arg = byte >> x_offset
+        self.screen[x_i][y_i] ^= xor_arg
+        erased |= self.screen[x_i][y_i] & xor_arg
+
+        if x_offset > 0:
+            x_i = (x_i + 1) % config.SCREEN_ARRAY_WIDTH
+            xor_arg = (byte << (8 - x_offset)) & 0xFF
+            self.screen[x_i][y_i] ^= xor_arg
+            erased |= self.screen[x_i][y_i] & xor_arg
+
+        if erased:
             self.emulator.set_vf_register(1)
         else:
             self.emulator.set_vf_register(0)
@@ -93,7 +105,7 @@ class UiRenderer:
         self.screen =  self.get_empty_screen()
 
     def get_empty_screen(self):
-        return [[0] * config.SCREEN_HEIGHT for _ in range(0, config.SCREEN_WIDTH, 8)]
+        return [[0] * config.SCREEN_ARRAY_HEIGHT for _ in range(config.SCREEN_ARRAY_WIDTH)]
 
     def put_message(self, message: str):
         self.messages.append(message)
