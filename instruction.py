@@ -20,6 +20,7 @@ class InstructionExecutor:
             Instruction('00E0', self.exec_00E0),
             Instruction('1nnn', self.exec_1nnn),
             Instruction('6xkk', self.exec_6xkk),
+            Instruction('7xkk', self.exec_7xkk),
             Instruction('Annn', self.exec_Annn),
             Instruction('Dxyn', self.exec_Dxyn),
         ]
@@ -41,6 +42,10 @@ class InstructionExecutor:
     def exec_6xkk(self, register: int, value: int):
         self.emulator.set_v_register(register, value)
         self.renderer.put_message(f'Set register V{register} to {value}')
+
+    def exec_7xkk(self, register: int, value: int):
+        self.emulator.set_v_register(register, self.emulator.v_registers[register] + value)
+        self.renderer.put_message(f'Add {value} to register V{register}')
 
     def exec_Annn(self, value: int):
         self.emulator.set_index_register(value)
