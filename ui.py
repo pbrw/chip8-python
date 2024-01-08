@@ -108,6 +108,8 @@ class UiRenderer:
         return [[0] * config.SCREEN_ARRAY_HEIGHT for _ in range(config.SCREEN_ARRAY_WIDTH)]
 
     def put_message(self, message: str):
+        if config.LOG_ENABLED:
+            utils.append_message_to_log_file(message)
         self.messages.append(message)
 
     def clear_console(self):
