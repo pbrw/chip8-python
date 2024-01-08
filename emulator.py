@@ -2,6 +2,7 @@ import ui
 import clock
 import utils
 import config
+from instruction import InstructionExecutor
 
 class Emulator:
     def __init__(self):
@@ -13,6 +14,7 @@ class Emulator:
         self.program_counter = config.PROGRAM_START_LOCATION
         self.v_registers = [0] * config.V_REGISTERS_NUMBER
         self.index_register = 0
+        self.instruction_executor = InstructionExecutor(self, self.renderer)
 
     def run(self):
         self.t_start_ms = utils.get_current_time_ms()
@@ -26,35 +28,10 @@ class Emulator:
         self.executed_cycles += 1
         instr = self.fetch_instruction_human_readable()
         self.move_program_counter(2)
-        self.execute_instruction(instr)
-
-    def execute_instruction(self, instr: int):
-        if instr[0] == '6':
-            register, value = utils.parse_instruction_args('6xkk', instr)
-            self.set_v_register(register, value)
-            self.renderer.put_message(f'Set register V{register} to {value}')
-        elif instr[0] == 'A':
-            value = utils.parse_instruction_args('Annn', instr).pop()
-            self.set_index_register(value)
-            self.renderer.put_message(f'Set register I to {value}')
-        elif instr == '00E0':
-            self.renderer.clear_screen()
-            self.renderer.put_message('Clear the screen')
-        elif instr[0] == 'D':
-            x_register, y_register, n = utils.parse_instruction_args('Dxyn', instr)
-            self.draw_bytes(self.v_registers[x_register], self.v_registers[y_register], n)
-            self.renderer.put_message(f'Draw {n} bytes at (V{x_register}, V{y_register})')
-        elif instr[0] == '1':
-            value = utils.parse_instruction_args('1nnn', instr).pop()
-            self.program_counter = value
-            self.renderer.put_message(f'Jump to address {value}')
-        else:
-            self.renderer.put_message(f'Instruction {instr} not known')
-
+        self.instruction_executor.execute(instr)
 
     def draw_bytes(self, x: int, y: int, n: int):
         begin = self.index_register
-        print(begin, n)
         self.renderer.xor_screen(x, y, self.memory[begin: begin + n])
 
     def move_program_counter(self, n):
