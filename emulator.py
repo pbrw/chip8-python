@@ -43,13 +43,13 @@ class Emulator:
         return utils.byte_to_human(first_byte) + utils.byte_to_human(second_byte)
 
     def set_v_register(self, register: int, value: int):
-        self.v_registers[register] = value
+        self.v_registers[register] = value & 0xFF
 
     def get_v_register(self, register: int) -> int:
         return self.v_registers[register]
 
     def set_vf_register(self, value: int):
-        self.v_registers[0xF] = value
+        self.v_registers[0xF] = value & 0xFF
 
     def set_index_register(self, value: int):
         self.index_register = value
@@ -64,3 +64,13 @@ class Emulator:
         begin = self.program_counter
         end = begin + size
         return self.memory[begin:end]
+
+    def load_registers_from_memory(self, n: int):
+        begin = self.index_register
+        end = begin + n + 1
+        for index, value in enumerate(self.memory[begin:end]):
+            self.set_v_register(index, value)
+
+    def store_registers_to_memory(self, n: int):
+        for index, value in enumerate(self.v_registers[:n + 1]):
+            self.memory[self.index_register + index] = value
