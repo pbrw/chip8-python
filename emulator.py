@@ -30,25 +30,22 @@ class Emulator:
 
     def execute_instruction(self, instr: int):
         if instr[0] == '6':
-            register = int(instr[1], 16)
-            value = int(instr[2:], 16)
+            register, value = utils.parse_instruction_args('6xkk', instr)
             self.set_v_register(register, value)
             self.renderer.put_message(f'Set register V{register} to {value}')
         elif instr[0] == 'A':
-            value = int(instr[1:], 16)
+            value = utils.parse_instruction_args('Annn', instr).pop()
             self.set_index_register(value)
             self.renderer.put_message(f'Set register I to {value}')
         elif instr == '00E0':
             self.renderer.clear_screen()
             self.renderer.put_message('Clear the screen')
         elif instr[0] == 'D':
-            x_register = int(instr[1], 16)
-            y_register = int(instr[2], 16)
-            n = int(instr[3], 16)
+            x_register, y_register, n = utils.parse_instruction_args('Dxyn', instr)
             self.draw_bytes(self.v_registers[x_register], self.v_registers[y_register], n)
             self.renderer.put_message(f'Draw {n} bytes at (V{x_register}, V{y_register})')
         elif instr[0] == '1':
-            value = int(instr[1:], 16)
+            value = utils.parse_instruction_args('1nnn', instr).pop()
             self.program_counter = value
             self.renderer.put_message(f'Jump to address {value}')
         else:
@@ -57,6 +54,7 @@ class Emulator:
 
     def draw_bytes(self, x: int, y: int, n: int):
         begin = self.index_register
+        print(begin, n)
         self.renderer.xor_screen(x, y, self.memory[begin: begin + n])
 
     def move_program_counter(self, n):
