@@ -18,7 +18,9 @@ class InstructionExecutor:
         self.renderer = renderer
         self.instruction_set = [
             Instruction('00E0', self.exec_00E0),
+            Instruction('00EE', self.exec_00EE),
             Instruction('1nnn', self.exec_1nnn),
+            Instruction('2nnn', self.exec_2nnn),
             Instruction('3xkk', self.exec_3xkk),
             Instruction('4xkk', self.exec_4xkk),
             Instruction('5xy0', self.exec_5xy0),
@@ -52,9 +54,18 @@ class InstructionExecutor:
         self.renderer.clear_screen()
         self.renderer.put_message('Clear the screen')
 
+    def exec_00EE(self):
+        self.emulator.program_counter = self.emulator.stack_pop()
+        self.renderer.put_message('Return from subroutine')
+
     def exec_1nnn(self, value: int):
         self.emulator.program_counter = value
         self.renderer.put_message(f'Jump to address {value}')
+
+    def exec_2nnn(self, value: int):
+        self.emulator.stack_push(self.emulator.program_counter)
+        self.emulator.program_counter = value
+        self.renderer.put_message(f'Call subroutine at {value}')
 
     def exec_3xkk(self, x: int, kk: int):
         if self.emulator.v_registers[x] == kk:

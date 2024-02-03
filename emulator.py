@@ -10,6 +10,7 @@ class Emulator:
         self.executed_cycles = 0
         self.renderer = ui.UiRenderer(self)
         self.clock = clock.Clock(self, self.renderer)
+        self.stack = []
         self.memory = [0] * config.MEMORY_SIZE_KB * 1024
         self.program_counter = config.PROGRAM_START_LOCATION
         self.v_registers = [0] * config.V_REGISTERS_NUMBER
@@ -74,3 +75,9 @@ class Emulator:
     def store_registers_to_memory(self, n: int):
         for index, value in enumerate(self.v_registers[:n + 1]):
             self.memory[self.index_register + index] = value
+
+    def stack_push(self, value: int):
+        self.stack.append(value)
+
+    def stack_pop(self) -> int:
+        return self.stack.pop()
