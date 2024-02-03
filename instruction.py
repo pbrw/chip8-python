@@ -111,46 +111,48 @@ class InstructionExecutor:
 
     def exec_8xy4(self, x: int, y: int):
         res = self.emulator.v_registers[x] + self.emulator.v_registers[y]
+        self.emulator.set_v_register(x, res)
         if res > 0xFF:
             self.emulator.set_vf_register(1)
         else:
             self.emulator.set_vf_register(0)
-        self.emulator.set_v_register(x, res)
         self.renderer.put_message(f'Set register V{x} to V{x} + V{y}')
 
     def exec_8xy5(self, x: int, y: int):
         res = self.emulator.v_registers[x] - self.emulator.v_registers[y]
+        self.emulator.set_v_register(x, res)
         if res < 0:
             res += 0x100
             self.emulator.set_vf_register(0)
         else:
             self.emulator.set_vf_register(1)
 
-        self.emulator.set_v_register(x, res)
         self.renderer.put_message(f'Set register V{x} to V{x} - V{y}')
 
     def exec_8xy6(self, x: int, _y: int):
-        self.emulator.set_vf_register(self.emulator.v_registers[x] & 0x1)
-        self.emulator.set_v_register(x, self.emulator.v_registers[x] >> 1)
+        val = self.emulator.v_registers[x]
+        self.emulator.set_v_register(x, val >> 1)
+        self.emulator.set_vf_register(val & 0x1)
         self.renderer.put_message(f'Set register V{x} to V{x} >> 1')
 
     def exec_8xy7(self, x: int, y: int):
         res = self.emulator.v_registers[y] - self.emulator.v_registers[x]
+        self.emulator.set_v_register(x, res)
         if res < 0:
             res += 0x100
             self.emulator.set_vf_register(0)
         else:
             self.emulator.set_vf_register(1)
 
-        self.emulator.set_v_register(x, res)
         self.renderer.put_message(f'Set register V{x} to V{y} - V{x}')
 
     def exec_8xyE(self, x: int, _y: int):
-        if self.emulator.v_registers[x] & (1 << 7):
+        val = self.emulator.v_registers[x]
+        self.emulator.set_v_register(x, val << 1)
+        if val & (1 << 7):
             self.emulator.set_vf_register(1)
         else:
             self.emulator.set_vf_register(0)
-        self.emulator.set_v_register(x, self.emulator.v_registers[x] << 1)
         self.renderer.put_message(f'Set register V{x} to V{x} << 1')
 
     def exec_9xy0(self, x: int, y: int):
