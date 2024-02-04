@@ -42,7 +42,9 @@ class InstructionExecutor:
             Instruction('Dxyn', self.exec_Dxyn),
             Instruction('Ex9E', self.exec_Ex9E),
             Instruction('ExA1', self.exec_ExA1),
+            Instruction('Fx07', self.exec_Fx07),
             Instruction('Fx0A', self.exec_Fx0A),
+            Instruction('Fx15', self.exec_Fx15),
             Instruction('Fx1E', self.exec_Fx1E),
             Instruction('Fx33', self.exec_Fx33),
             Instruction('Fx55', self.exec_Fx55),
@@ -186,13 +188,21 @@ class InstructionExecutor:
             self.emulator.move_program_counter(2)
         self.renderer.put_message(f'If key V{x} is not pressed, skip next instruction')
 
+    def exec_Fx07(self, x: int):
+        self.emulator.set_v_register(x, self.emulator.timer_register)
+        self.renderer.put_message(f'Set register V{x} to delay timer')
+
     def exec_Fx0A(self, x: int):
-        key = self.keypad.get_pressed_key_val()
+        key = self.keypad.get_pressed_released_key_val()
         if key is not None:
             self.emulator.set_v_register(x, key)
         else:
             self.emulator.move_program_counter(-2)
         self.renderer.put_message(f'Wait for key press and store in V{x}')
+
+    def exec_Fx15(self, x: int):
+        self.emulator.set_delay_timer(self.emulator.v_registers[x])
+        self.renderer.put_message(f'Set delay timer to V{x}')
 
     def exec_Fx1E(self, x: int):
         self.emulator.set_index_register(self.emulator.get_index_register() + self.emulator.v_registers[x])

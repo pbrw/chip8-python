@@ -22,14 +22,24 @@ class Keypad:
             14: 'e',
             15: 'f'
         }
+        self.pressed_key_cache = None
 
     def is_pressed(self, val):
         return keyboard.is_pressed(self._val_to_key(val))
 
-    def get_pressed_key_val(self):
+    def get_pressed_released_key_val(self):
+        if self.pressed_key_cache is not None:
+            if not self.is_pressed(self.pressed_key_cache):
+                res = self.pressed_key_cache
+                self.pressed_key_cache = None
+                return res
+            return None
+
         for key in range(KEYPAD_SIZE):
             if self.is_pressed(key):
-                return key
+                self.pressed_key_cache = key
+                break
+
         return None
 
     def _val_to_key(self, val):

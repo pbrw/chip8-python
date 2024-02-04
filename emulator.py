@@ -16,6 +16,7 @@ class Emulator:
         self.v_registers = [0] * config.V_REGISTERS_NUMBER
         self.index_register = 0
         self.instruction_executor = InstructionExecutor(self, self.renderer)
+        self.timer_register = 0
 
     def run(self):
         self.t_start_ms = utils.get_current_time_ms()
@@ -81,3 +82,9 @@ class Emulator:
 
     def stack_pop(self) -> int:
         return self.stack.pop()
+
+    def get_delay_timer(self) -> int:
+        return self.timer_register
+
+    def set_delay_timer(self, value: int):
+        self.timer_register = value & 0xFF
