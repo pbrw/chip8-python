@@ -34,6 +34,10 @@ def parse_instruction_args(pattern: str, instr: str) -> [int]:
 
     return res
 
+def clear_log_file():
+    with open(config.LOG_FILE_PATH, 'w', encoding='utf-8') as file:
+        file.write('')
+
 def append_message_to_log_file(string: str):
     with open(config.LOG_FILE_PATH, 'a', encoding='utf-8') as file:
         file.write(string)
