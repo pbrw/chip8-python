@@ -27,12 +27,15 @@ class UiRenderer:
         print(f'Cycle: {executed_cycles + 1}')
         print('')
         self.render_index_register()
-        print('')
-        self.render_registers()
-        print('')
-        self.render_memory()
-        print('')
-        self.render_messages()
+        if config.UI_RENDER_REGISTERS:
+            print('')
+            self.render_registers()
+        if config.UI_RENDER_MEMORY:
+            print('')
+            self.render_memory()
+        if config.UI_RENDER_MESSAGES:
+            print('')
+            self.render_messages()
 
     def render_memory(self):
         memory = self.emulator.get_memory_window(config.UI_MEMORY_WINDOW_SIZE)

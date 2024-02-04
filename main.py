@@ -1,5 +1,4 @@
 import emulator as emul
-
 import config
 
 PROGRAM_CODE = [

@@ -1,3 +1,4 @@
+from keypad import Keypad
 import utils
 
 class Instruction:
@@ -16,6 +17,7 @@ class InstructionExecutor:
     def __init__(self, emulator, renderer):
         self.emulator = emulator
         self.renderer = renderer
+        self.keypad = Keypad()
         self.instruction_set = [
             Instruction('00E0', self.exec_00E0),
             Instruction('00EE', self.exec_00EE),
@@ -38,6 +40,9 @@ class InstructionExecutor:
             Instruction('9xy0', self.exec_9xy0),
             Instruction('Annn', self.exec_Annn),
             Instruction('Dxyn', self.exec_Dxyn),
+            Instruction('Ex9E', self.exec_Ex9E),
+            Instruction('ExA1', self.exec_ExA1),
+            Instruction('Fx0A', self.exec_Fx0A),
             Instruction('Fx1E', self.exec_Fx1E),
             Instruction('Fx33', self.exec_Fx33),
             Instruction('Fx55', self.exec_Fx55),
@@ -170,6 +175,24 @@ class InstructionExecutor:
             self.emulator.v_registers[y],
             n)
         self.renderer.put_message(f'Draw {n} bytes at (V{x}, V{y})')
+
+    def exec_Ex9E(self, x: int):
+        if self.keypad.is_pressed(self.emulator.v_registers[x]):
+            self.emulator.move_program_counter(2)
+        self.renderer.put_message(f'If key V{x} is pressed, skip next instruction')
+
+    def exec_ExA1(self, x: int):
+        if not self.keypad.is_pressed(self.emulator.v_registers[x]):
+            self.emulator.move_program_counter(2)
+        self.renderer.put_message(f'If key V{x} is not pressed, skip next instruction')
+
+    def exec_Fx0A(self, x: int):
+        key = self.keypad.get_pressed_key_val()
+        if key is not None:
+            self.emulator.set_v_register(x, key)
+        else:
+            self.emulator.move_program_counter(-2)
+        self.renderer.put_message(f'Wait for key press and store in V{x}')
 
     def exec_Fx1E(self, x: int):
         self.emulator.set_index_register(self.emulator.get_index_register() + self.emulator.v_registers[x])
