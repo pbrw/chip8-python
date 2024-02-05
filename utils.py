@@ -1,3 +1,4 @@
+import random
 import time
 import config
 
@@ -33,6 +34,9 @@ def parse_instruction_args(pattern: str, instr: str) -> [int]:
         res.append(cur)
 
     return res
+
+def get_random_byte() -> int:
+    return random.randint(0, 0xFF)
 
 def clear_log_file():
     with open(config.LOG_FILE_PATH, 'w', encoding='utf-8') as file:

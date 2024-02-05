@@ -39,6 +39,8 @@ class InstructionExecutor:
             Instruction('8xyE', self.exec_8xyE),
             Instruction('9xy0', self.exec_9xy0),
             Instruction('Annn', self.exec_Annn),
+            Instruction('Bnnn', self.exec_Bnnn),
+            Instruction('Cxkk', self.exec_Cxkk),
             Instruction('Dxyn', self.exec_Dxyn),
             Instruction('Ex9E', self.exec_Ex9E),
             Instruction('ExA1', self.exec_ExA1),
@@ -46,6 +48,7 @@ class InstructionExecutor:
             Instruction('Fx0A', self.exec_Fx0A),
             Instruction('Fx15', self.exec_Fx15),
             Instruction('Fx1E', self.exec_Fx1E),
+            Instruction('Fx29', self.exec_Fx29),
             Instruction('Fx33', self.exec_Fx33),
             Instruction('Fx55', self.exec_Fx55),
             Instruction('Fx65', self.exec_Fx65),
@@ -104,16 +107,19 @@ class InstructionExecutor:
     def exec_8xy1(self, x: int, y: int):
         self.emulator.set_v_register(x,
             self.emulator.v_registers[x] | self.emulator.v_registers[y])
+        self.emulator.set_vf_register(0)
         self.renderer.put_message(f'Set register V{x} to V{x} | V{y}')
 
     def exec_8xy2(self, x: int, y: int):
         self.emulator.set_v_register(x,
             self.emulator.v_registers[x] & self.emulator.v_registers[y])
+        self.emulator.set_vf_register(0)
         self.renderer.put_message(f'Set register V{x} to V{x} & V{y}')
 
     def exec_8xy3(self, x: int, y: int):
         self.emulator.set_v_register(x,
             self.emulator.v_registers[x] ^ self.emulator.v_registers[y])
+        self.emulator.set_vf_register(0)
         self.renderer.put_message(f'Set register V{x} to V{x} ^ V{y}')
 
     def exec_8xy4(self, x: int, y: int):
@@ -136,7 +142,8 @@ class InstructionExecutor:
 
         self.renderer.put_message(f'Set register V{x} to V{x} - V{y}')
 
-    def exec_8xy6(self, x: int, _y: int):
+    def exec_8xy6(self, x: int, y: int):
+        self.emulator.set_v_register(x, self.emulator.v_registers[y])
         val = self.emulator.v_registers[x]
         self.emulator.set_v_register(x, val >> 1)
         self.emulator.set_vf_register(val & 0x1)
@@ -153,7 +160,8 @@ class InstructionExecutor:
 
         self.renderer.put_message(f'Set register V{x} to V{y} - V{x}')
 
-    def exec_8xyE(self, x: int, _y: int):
+    def exec_8xyE(self, x: int, y: int):
+        self.emulator.set_v_register(x, self.emulator.v_registers[y])
         val = self.emulator.v_registers[x]
         self.emulator.set_v_register(x, val << 1)
         if val & (1 << 7):
@@ -170,6 +178,14 @@ class InstructionExecutor:
     def exec_Annn(self, nnn: int):
         self.emulator.set_index_register(nnn)
         self.renderer.put_message(f'Set register I to {nnn}')
+
+    def exec_Bnnn(self, nnn: int):
+        self.emulator.program_counter = self.emulator.v_registers[0] + nnn
+        self.renderer.put_message(f'Jump to address V0 + {nnn}')
+
+    def exec_Cxkk(self, x: int, kk: int):
+        self.emulator.set_v_register(x, kk & utils.get_random_byte())
+        self.renderer.put_message(f'Set register V{x} to random byte & {kk}')
 
     def exec_Dxyn(self, x: int, y: int, n: int):
         self.emulator.draw_bytes(
@@ -207,6 +223,10 @@ class InstructionExecutor:
     def exec_Fx1E(self, x: int):
         self.emulator.set_index_register(self.emulator.get_index_register() + self.emulator.v_registers[x])
         self.renderer.put_message(f'Set register I to I + V{x}')
+
+    def exec_Fx29(self, x: int):
+        self.emulator.set_index_register(self.emulator.v_registers[x] * 5)
+        self.renderer.put_message(f'Set register I to sprite of V{x}')
 
     def exec_Fx33(self, x: int):
         value = self.emulator.v_registers[x] % 1000
