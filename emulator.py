@@ -19,6 +19,7 @@ class Emulator:
         self.timer_register = 0
 
     def run(self):
+        self.load_hex_digit_sprites_to_memory()
         self.t_start_ms = utils.get_current_time_ms()
         self.clock.start()
 
@@ -72,10 +73,12 @@ class Emulator:
         end = begin + n + 1
         for index, value in enumerate(self.memory[begin:end]):
             self.set_v_register(index, value)
+        self.set_index_register(end)
 
     def store_registers_to_memory(self, n: int):
         for index, value in enumerate(self.v_registers[:n + 1]):
             self.memory[self.index_register + index] = value
+        self.set_index_register(self.index_register + n + 1)
 
     def stack_push(self, value: int):
         self.stack.append(value)
@@ -88,3 +91,8 @@ class Emulator:
 
     def set_delay_timer(self, value: int):
         self.timer_register = value & 0xFF
+
+    def load_hex_digit_sprites_to_memory(self):
+        data = ['F0909090F0', '2060202070', 'F010F080F0', 'F010F010F0', '9090F01010', 'F080F010F0', 'F080F090F0', 'F010204040', 'F090F090F0', 'F090F010F0']
+        for index, byte in enumerate(data):
+            self.memory[index * 5: index * 5 + 5] = bytearray.fromhex(byte)
