@@ -1,3 +1,4 @@
+import sys
 import utils
 import emulator as emul
 import config
@@ -14,7 +15,12 @@ PROGRAM_CODE = [
 def main():
     print("Starting CHIP-8 Emulator")
     utils.clear_log_file()
-    bytecode = load_file_content_as_bytes(config.ROM_CODE_FILE_PATH)
+
+    rom_file_path = config.ROM_CODE_FILE_PATH
+    if len(sys.argv) > 1:
+        rom_file_path = sys.argv[1]
+
+    bytecode = load_file_content_as_bytes(rom_file_path)
     emulator = emul.Emulator()
     emulator.load_program_to_memory(bytecode)
     emulator.run()
