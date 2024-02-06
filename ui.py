@@ -80,29 +80,37 @@ class UiRenderer:
         print('\u2588', end='')
 
     def xor_screen(self, x: int, y: int, bytes: [int]):
+        erased = 0
         for index, byte in enumerate(bytes):
-            self.xor_byte(x, (y + index) % config.SCREEN_ARRAY_HEIGHT, byte)
+            if y + index == config.SCREEN_HEIGHT and index != 0:
+                break
+            erased |= self.xor_byte(x, y + index, byte)
+        if erased:
+            self.emulator.set_vf_register(1)
+        else:
+            self.emulator.set_vf_register(0)
 
     def xor_byte(self, x: int, y: int, byte: int):
+        x %= config.SCREEN_WIDTH
+        y %= config.SCREEN_HEIGHT
+
         erased = 0
         x_i = math.floor(x / 8)
         x_offset = x % 8
         y_i = y
 
         xor_arg = byte >> x_offset
-        self.screen[x_i][y_i] ^= xor_arg
         erased |= self.screen[x_i][y_i] & xor_arg
+        self.screen[x_i][y_i] ^= xor_arg
 
         if x_offset > 0:
-            x_i = (x_i + 1) % config.SCREEN_ARRAY_WIDTH
-            xor_arg = (byte << (8 - x_offset)) & 0xFF
-            self.screen[x_i][y_i] ^= xor_arg
-            erased |= self.screen[x_i][y_i] & xor_arg
+            x_i += 1
+            if x_i != config.SCREEN_ARRAY_WIDTH:
+                xor_arg = (byte << (8 - x_offset)) & 0xFF
+                erased |= self.screen[x_i][y_i] & xor_arg
+                self.screen[x_i][y_i] ^= xor_arg
 
-        if erased:
-            self.emulator.set_vf_register(1)
-        else:
-            self.emulator.set_vf_register(0)
+        return erased
 
     def clear_screen(self):
         self.screen =  self.get_empty_screen()
